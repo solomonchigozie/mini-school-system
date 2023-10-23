@@ -17,7 +17,8 @@ if(isset($_POST['submit'])){
     $level = mysqli_real_escape_string($connection, $_POST['level']);
 	
 	#file name with a random number so that similar dont get replaced
-    $passport = rand(1000,10000)."-".$_FILES["file"]["name"];
+    $passport = $_FILES["file"]["name"];
+    // print_r($_FILES);
 
     //allowed file 
     $allowed = array("jpg" => "image/jpg", "jpeg" => "image/jpeg", 
@@ -48,22 +49,31 @@ if(isset($_POST['submit'])){
     if($filesize > $maxsize){
         array_push($error,"Image size is too large, images should be less than 1mb");
     }
+
+    // echo $_FILES["file"]["error"];
     
     //if there are no errors in the form then continue
     if(count($error)==0){
 		#move uploaded files to specific location
-        move_uploaded_file($tname, "uploads/".$passport);
+        // move_uploaded_file($_FILES['file']['tmp_name'], $_FILES['file']['name']);
 
-        //insert into the database
-        $insert = "INSERT INTO student(fullname, dob, level, passport) 
-        VALUES('$fullname', '$dob', '$level','$passport')";
 
-        if(mysqli_query($connection, $insert)){
-            $success = "<div class='text-success text-center'>
-				Student was added successfully</div>";
-        }else{
-            $success = "<span class='text-danger'>failed".mysqli_error()."</span>";
-        }
+       if(move_uploaded_file($_FILES["file"]["tmp_name"], "uploads/".$_FILES["file"]["name"])){
+            //insert into the database
+            $insert = "INSERT INTO student(fullname, dob, level, passport) 
+            VALUES('$fullname', '$dob', '$level','$passport')";
+
+            if(mysqli_query($connection, $insert)){
+                $success = "<div class='text-success text-center'>
+                    Student was added successfully</div>";
+            }else{
+                $success = "<span class='text-danger'>failed".mysqli_error($connection)."</span>";
+            }
+       }else{
+         $success = "<span class='text-danger'>Image upload failed</span>";
+       }
+
+        
     }
 
 }
@@ -79,7 +89,8 @@ if(isset($_POST['submit'])){
 </head>
 <body>
     <?php  require("inc/nav.php"); ?>
-	<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post" class="st__form" autocomplete="off" enctype="multipart/form-data">
+	<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post" class="st__form" 
+        autocomplete="off" enctype="multipart/form-data">
         <h3 class="text-center">Add New Student</h3>
         <?php echo $success; ?>
         <?php

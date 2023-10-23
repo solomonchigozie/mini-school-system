@@ -26,7 +26,7 @@ if(isset($_POST['submit'])){
     if(empty($phone)){
         array_push($error, "phone cannot be empty");
     }
-    if(empty($pass != $confirmpassword)){
+    if($pass != $confirmpassword){
         array_push($error, "Two passwords do not match");
     }
     
